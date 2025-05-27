@@ -75,7 +75,7 @@ def link_create():
         # access_url = f"http://{ip_address}:5001/access/{code}"
 
             # ✅ Render용 URL 생성
-        base_url = os.getenv("BASE_URL", "http://{ip_address}:5001")  # 기본값은 로컬용
+        base_url = os.getenv("BASE_URL", "https://escro-1.onrender.com")  # 기본값은 로컬용
         access_url = f"{base_url}/access/{code}"
 
         cursor.execute("""
