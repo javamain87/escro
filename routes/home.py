@@ -71,8 +71,12 @@ def link_create():
             )
 
         # ✅ 생성 처리
-        ip_address = get_local_ip()
-        access_url = f"http://{ip_address}:5001/access/{code}"
+        # ip_address = get_local_ip()
+        # access_url = f"http://{ip_address}:5001/access/{code}"
+
+            # ✅ Render용 URL 생성
+        base_url = os.getenv("BASE_URL", "http://{ip_address}:5001")  # 기본값은 로컬용
+        access_url = f"{base_url}/access/{code}"
 
         cursor.execute("""
             INSERT INTO Link (code, password, requester_name, requester_phone, worker_name, worker_phone, access_url)
