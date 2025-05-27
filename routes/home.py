@@ -5,6 +5,7 @@ import os
 import socket
 import math
 from extensions import limiter  # ✅ 이제 이쪽에서 가져옴
+from datetime import datetime
 
 
 def get_local_ip():
@@ -100,42 +101,116 @@ if __name__ == "__main__":
 def access_link(code):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM Link WHERE code = ?", (code,))
-    row = cursor.fetchone()
+
+    cursor.execute("""
+        SELECT requester_name, requester_phone, worker_name, worker_phone, password
+        FROM Link WHERE code = ?
+    """, (code,))
+    link_row = cursor.fetchone()
+
+    if not link_row:
+        conn.close()
+        return "잘못된 접근입니다.", 404
+
+    requester_name, requester_phone, worker_name, worker_phone, password = link_row
+
+    # ✅ 인증 로직
+    if request.method == "POST" and "phone" in request.form:
+        input_phone = request.form.get("phone")
+        input_password = request.form.get("password")
+
+        if input_phone not in (requester_phone, worker_phone):
+            flash("🚫 등록된 전화번호가 아닙니다.", "warning")
+            return render_template("home/page/access_prompt.html")
+
+        if input_password != password:
+            flash("🚫 비밀번호가 일치하지 않습니다.", "warning")
+            return render_template("home/page/access_prompt.html")
+
+        # 인증 성공 → role 추정 후 GET redirect
+        role = "신청자" if input_phone == requester_phone else "작업자"
+        return redirect(url_for("home.access_link", code=code, role=role))
+
+    # ✅ 인증 완료된 GET 요청 처리
+    role = request.args.get("role")
+    if not role:
+        return render_template("home/page/access_prompt.html")
+
+    # detail 정보 조회
+    cursor.execute("SELECT * FROM LinkDetail WHERE link_code = ?", (code,))
+    detail_row = cursor.fetchone()
+
+    if request.method == "POST" and "phone" not in request.form:
+        if detail_row:
+            if role == "신청자":
+                wallet_address_requester = request.form.get("wallet_address_requester", "").strip()
+                request_content = request.form.get("request_content", "").strip()
+
+                if wallet_address_requester or request_content:
+                    cursor.execute("""
+                        UPDATE LinkDetail
+                        SET wallet_address_requester = ?, request_content = ?, updated_at = ?
+                        WHERE link_code = ?
+                    """, (
+                        wallet_address_requester or detail_row[2],
+                        request_content or detail_row[4],
+                        datetime.now(),
+                        code
+                    ))
+
+            elif role == "작업자":
+                work_history_input = request.form.get("work_history", "").strip()
+
+                # 작업자가 작업 이력을 자유롭게 수정 가능하도록 덮어쓰기 처리
+                cursor.execute("""
+                    UPDATE LinkDetail
+                    SET work_history = ?, updated_at = ?
+                    WHERE link_code = ?
+                """, (
+                    work_history_input,
+                    datetime.now(),
+                    code
+                ))
+
+        conn.commit()
+        flash("✅ 저장 완료", "success")
+        return redirect(url_for("home.access_link", code=code, role=role))
+
+    # GET 시 화면 랜더링
+    wallet_address_requester = detail_row[2] if detail_row else ""
+    wallet_address_worker = detail_row[3] if detail_row else ""
+    request_content = detail_row[4] if detail_row else ""
+    work_history = detail_row[5] if detail_row else ""
+
     conn.close()
 
-    if not row:
-        return "❌ 유효하지 않은 링크 코드입니다.", 404
+    return render_template("home/page/access_result.html",
+        role=role,
+        requester_name=requester_name,
+        requester_phone=requester_phone,
+        worker_name=worker_name,
+        worker_phone=worker_phone,
+        wallet_address_requester=wallet_address_requester,
+        wallet_address_worker=wallet_address_worker,
+        request_content=request_content,
+        work_history=work_history
+    )
 
-    # row: (id, code, password, requester_name, requester_phone, worker_name, worker_phone, created_at)
-    link_data = {
-        "code": row[1],
-        "password": row[2],
-        "requester_name": row[3],
-        "requester_phone": row[4],
-        "worker_name": row[5],
-        "worker_phone": row[6],
-    }
 
-    if request.method == "POST":
-        input_password = request.form.get("password")
-        input_phone = request.form.get("phone")
+# DB 테이블 생성 쿼리
+# CREATE TABLE LinkDetail (
+#     id INTEGER PRIMARY KEY AUTOINCREMENT,
+#     link_code TEXT,
+#     wallet_address_requester TEXT,
+#     wallet_address_worker TEXT,
+#     request_content TEXT,
+#     work_history TEXT,
+#     created_at DATETIME,
+#     updated_at DATETIME
+# );
 
-        if input_password != link_data["password"]:
-            return "❌ 비밀번호가 일치하지 않습니다.", 403
-
-        if input_phone == link_data["requester_phone"]:
-            role = "신청자"
-        elif input_phone == link_data["worker_phone"]:
-            role = "작업자"
-        else:
-            return "❌ 전화번호가 등록되지 않았습니다.", 403
-
-        return render_template("home/page/access_result.html", role=role, **link_data)
-
-    return render_template("home/page/access_prompt.html")
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, port=5001, host="0.0.0.0")
 
 
 @home_bp.route("/links", methods=["GET"])

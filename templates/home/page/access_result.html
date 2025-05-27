@@ -1,14 +1,135 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <title>접속 성공</title>
+  <meta charset="UTF-8">
+  <title>접속 성공</title>
+  <link href="https://fonts.googleapis.com/css2?family=Segoe+UI&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f0f2f5;
+      color: #1e1e1e;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .success-box {
+      background: #ffffff;
+      padding: 40px 50px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+      width: 100%;
+      max-width: 600px;
+    }
+
+    h2 {
+      color: #16a34a;
+      font-size: 26px;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+
+    .info-banner {
+      background-color: #f1f5f9;
+      border-left: 4px solid #3b82f6;
+      padding: 16px 20px;
+      border-radius: 8px;
+      margin-bottom: 30px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      font-size: 15px;
+    }
+
+    .info-banner p {
+      margin: 6px 0;
+      color: #1e293b;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    input[type="text"],
+    textarea {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      transition: border 0.3s;
+      resize: vertical;
+    }
+
+    input[type="text"]:focus,
+    textarea:focus {
+      border-color: #3b82f6;
+      outline: none;
+    }
+
+    textarea[readonly],
+    input[readonly] {
+      background-color: #f8f8f8;
+      color: #666;
+      cursor: not-allowed;
+    }
+
+    button {
+      background-color: #3b82f6;
+      color: white;
+      padding: 12px 20px;
+      font-size: 16px;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      width: 100%;
+    }
+
+    button:hover {
+      background-color: #2563eb;
+    }
+  </style>
 </head>
 <body>
+
+  <div class="success-box">
     <h2>✅ 접속 성공</h2>
-    <p>당신은 <strong>{{ role }}</strong> 입니다.</p>
-    <p>신청자: {{ requester_name }} / {{ requester_phone }}</p>
-    <p>작업자: {{ worker_name }} / {{ worker_phone }}</p>
+
+    <div class="info-banner">
+      <p><strong>신청자:</strong> {{ requester_name }} / {{ requester_phone }}</p>
+      <p><strong>작업자:</strong> {{ worker_name }} / {{ worker_phone }}</p>
+    </div>
+
+    <form method="post">
+      <!-- 🪙 지갑 주소 (역할별 분기) -->
+      {% if role == '신청자' %}
+        <label>🪙 신청자 지갑 주소</label>
+        <input type="text" name="wallet_address_requester" value="{{ wallet_address_requester or '' }}" required>
+      {% elif role == '작업자' %}
+        <label>🪙 작업자 지갑 주소</label>
+        <input type="text" name="wallet_address_worker" value="{{ wallet_address_worker or '' }}" required>
+      {% endif %}
+
+      <!-- 📝 신청 내용 -->
+      <label>📝 신청 내용</label>
+      <textarea name="request_content" rows="4" {% if role != '신청자' %}readonly{% endif %}>{{ request_content or '' }}</textarea>
+
+      <!-- 🛠 작업 이력 -->
+      <label>🛠 작업 이력</label>
+      <textarea name="work_history" rows="6" {% if role != '작업자' %}readonly{% endif %}>{{ work_history or '' }}</textarea>
+
+      <!-- 저장 버튼 -->
+      <button type="submit">저장</button>
+    </form>
+  </div>
+
 </body>
 </html>
