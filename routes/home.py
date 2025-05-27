@@ -93,7 +93,6 @@ if __name__ == "__main__":
     app.run(debug=True)
 
 @home_bp.route("/access/<code>", methods=["GET", "POST"])
-@limiter.limit("5 per minute")
 def access_link(code):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
