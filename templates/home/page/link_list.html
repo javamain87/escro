@@ -1,0 +1,64 @@
+{% extends "layout.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+
+<h2>🔗 생성된 링크 목록</h2>
+<button class="btn-create" onclick="window.location.href='{{ url_for('home.link_page') }}'">➕ 링크 생성</button>
+
+<table>
+  <thead>
+    <tr>
+      <th>코드</th>
+      <th>접속 링크</th>
+      <th>신청자</th>
+      <th>작업자</th>
+      <th>생성일</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for link in links %}
+    <tr>
+      <td>{{ link[1] }}</td>
+      <td><a href="{{ link[7] }}" target="_blank">{{ link[7] }}</a></td>
+      <td>{{ link[3] }} ({{ link[4] }})</td>
+      <td>{{ link[5] }} ({{ link[6] }})</td>
+      <td>{{ link[8] }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<!-- ✅ 페이징 UI 추가 -->
+<div class="pagination" style="text-align: center; margin-top: 30px;">
+  {% if page > 1 %}
+    <a href="{{ url_for('home.link_list', page=page-1) }}">&laquo; 이전</a>
+  {% endif %}
+
+  {% for p in range(1, total_pages + 1) %}
+    {% if p == page %}
+      <strong style="margin: 0 6px; color: #3b82f6;">{{ p }}</strong>
+    {% else %}
+      <a href="{{ url_for('home.link_list', page=p) }}" style="margin: 0 6px;">{{ p }}</a>
+    {% endif %}
+  {% endfor %}
+
+  {% if page < total_pages %}
+    <a href="{{ url_for('home.link_list', page=page+1) }}">다음 &raquo;</a>
+  {% endif %}
+</div>
+
+<style>
+  .pagination a {
+    color: #3b82f6;
+    text-decoration: none;
+    font-weight: bold;
+  }
+
+  .pagination a:hover {
+    text-decoration: underline;
+  }
+</style>
+
+{% endblock %}

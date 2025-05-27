@@ -1,0 +1,28 @@
+<!-- Google Fonts: Dancing Script -->
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap" rel="stylesheet">
+
+<!-- 헤더 -->
+<header style="position: relative; height: 60px; background-color: #2f3542; display: flex; align-items: center; padding: 0 20px;">
+  
+  <!-- 좌측: 햄버거 버튼 -->
+  <button id="menu-toggle" style="background: none; margin-left:1px; border: none; cursor: pointer; z-index: 2;">
+    <div style="width: 25px; height: 3px; background-color: white; margin: 5px 0;"></div>
+    <div style="width: 25px; height: 3px; background-color: white; margin: 5px 0;"></div>
+    <div style="width: 25px; height: 3px; background-color: white; margin: 5px 0;"></div>
+  </button>
+
+  <!-- 중앙: 타이틀 -->
+  <div style="
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Dancing Script', cursive;
+    font-size: 28px;
+    color: white;
+    white-space: nowrap;
+    pointer-events: none;  /* 클릭 이벤트 방지 (햄버거 위에 있어도 안 겹치게) */
+  ">
+    Escro System
+  </div>
+
+</header>

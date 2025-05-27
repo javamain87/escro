@@ -1,0 +1,98 @@
+{% extends "layout.html" %}
+
+{% block title %}링크 생성{% endblock %}
+
+{% block content %}
+  <h1 style="font-size: 28px; margin-bottom: 24px;">🔗 링크 생성</h1>
+
+  <!-- ✅ Flash 메시지 블록 -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      {% if category in ['warning', 'success'] %}
+        <div>{{ message }}</div>
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+  <form method="post" action="{{ url_for('home.link_create') }}" class="form-container">
+    <div class="form-group">
+      <label for="requester_name">신청자 이름</label>
+      <input type="text" id="requester_name" name="requester_name" value="{{ requester_name or '' }}" required />
+    </div>
+
+    <div class="form-group">
+      <label for="requester_phone">신청자 전화번호</label>
+      <input type="text" id="requester_phone" name="requester_phone" value="{{ requester_phone or '' }}" required />
+    </div>
+
+    <div class="form-group">
+      <label for="worker_name">작업자 이름</label>
+      <input type="text" id="worker_name" name="worker_name" value="{{ worker_name or '' }}" required />
+    </div>
+
+    <div class="form-group">
+      <label for="worker_phone">작업자 전화번호</label>
+      <input type="text" id="worker_phone" name="worker_phone" value="{{ worker_phone or '' }}" required />
+    </div>
+
+    <div class="form-group">
+      <label for="password">접근 비밀번호</label>
+      <input type="text" id="password" name="password" value="{{ password or '' }}" required />
+    </div>
+
+    <button type="submit" class="btn-submit">➕ 링크 생성하기</button>
+  </form>
+
+  <style>
+    .form-container {
+      max-width: 600px;
+      background: #ffffff;
+      padding: 30px 40px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #333;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 10px 14px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      transition: border 0.3s ease;
+    }
+
+    input[type="text"]:focus {
+      border-color: #3b82f6;
+      outline: none;
+    }
+
+    .btn-submit {
+      background-color: #3b82f6;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .btn-submit:hover {
+      background-color: #2563eb;
+    }
+  </style>
+{% endblock %}

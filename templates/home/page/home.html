@@ -1,0 +1,66 @@
+{% extends "layout.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+  <h1>Dashboard</h1>
+  
+  <!-- 차트 -->
+  <canvas id="myChart" width="70" height="25"></canvas>
+  
+  <!-- DataTables CSS -->
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+
+  <!-- 그리드 -->
+  <h2>오늘 접속한 회원 목록</h2>
+  <style>
+    #memberTable td:nth-child(1),
+    #memberTable td:nth-child(2),
+    #memberTable td:nth-child(3),
+    #memberTable td:nth-child(4),
+    #memberTable td:nth-child(5) {
+      text-align: center;
+    }
+  </style>
+  <table id="memberTable" class="display">
+    <thead>
+      <tr>
+        <th>이름</th>
+        <th>휴대폰 번호</th>
+        <th>링크</th>
+        <th>링크 password</th>
+        <th>접속 시간</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>홍길동</td>
+        <td>010-1234-5678</td>
+        <td>https://www.google.com</td>
+        <td>1234</td>
+        <td>10:00 AM</td>
+      </tr>
+      
+      <!-- 추가 행 -->
+    </tbody>
+  </table>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="{{ url_for('static', filename='/js/chart.js') }}"></script>
+
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <!-- DataTables JS -->
+  <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('#memberTable').DataTable({
+        language: {
+          lengthMenu: "페이지당 _MENU_ 개씩 보기",
+          search: "검색:",
+          info: "_TOTAL_개의 항목 중 _START_부터 _END_까지 표시"
+        }
+      });
+    });
+  </script>
+{% endblock %} 
